@@ -8,26 +8,20 @@ from PROFILE;
 
 delete
 from ACTIVITY;
-alter
-sequence ACTIVITY_ID_SEQ restart with 1;
+alter table ACTIVITY alter column ID restart with 1;
 delete
 from TASK;
-alter
-sequence TASK_ID_SEQ restart with 1;
+alter table TASK alter column ID restart with 1;
 delete
 from SPRINT;
-alter
-sequence SPRINT_ID_SEQ restart with 1;
+alter table SPRINT alter column ID restart with 1;
 delete
 from PROJECT;
-alter
-sequence PROJECT_ID_SEQ restart with 1;
+alter table PROJECT alter column ID restart with 1;
 
 delete
 from USERS;
-alter
-sequence USERS_ID_SEQ restart with 1;
-
+alter table USERS alter column ID restart with 1;
 insert into USERS (EMAIL, PASSWORD, FIRST_NAME, LAST_NAME, DISPLAY_NAME)
 values ('user@gmail.com', '{noop}password', 'userFirstName', 'userLastName', 'userDisplayName'),
        ('admin@gmail.com', '{noop}admin', 'adminFirstName', 'adminLastName', 'adminDisplayName'),
@@ -85,7 +79,10 @@ insert into ACTIVITY(AUTHOR_ID, TASK_ID, UPDATED, COMMENT, TITLE, DESCRIPTION, E
 values (1, 1, '2023-05-15 09:05:10', null, 'Data', null, 3, 'epic', 'in_progress', 'low'),
        (2, 1, '2023-05-15 12:25:10', null, 'Data', null, null, null, null, 'normal'),
        (1, 1, '2023-05-15 14:05:10', null, 'Data', null, 4, null, null, null),
-       (1, 2, '2023-05-15 12:05:10', null, 'Trees', 'Trees desc', 4, 'epic', 'in_progress', 'normal');
+       (1, 2, '2023-05-15 12:05:10', null, 'Trees', 'Trees desc', 4, 'epic', 'in_progress', 'normal'),
+       (1, 6, '2023-05-25 10:00:10', null, 'Data', null, 3, 'epic', 'in_progress', 'low'),
+       (2, 6, '2023-05-25 13:30:10', null, 'Data', null, null, null, 'ready_for_review', 'normal'),
+       (1, 6, '2023-05-25 15:00:10', null, 'Data', null, 4, null, 'done', null);
 
 insert into USER_BELONG (OBJECT_ID, OBJECT_TYPE, USER_ID, USER_TYPE_CODE, STARTPOINT, ENDPOINT)
 values (1, 2, 2, 'task_developer', '2023-06-14 08:35:10', '2023-06-14 08:55:00'),
@@ -96,3 +93,10 @@ values (1, 2, 2, 'task_developer', '2023-06-14 08:35:10', '2023-06-14 08:55:00')
        (2, 2, 2, 'task_developer', '2023-06-08 07:10:00', null),
        (2, 2, 1, 'task_developer', '2023-06-09 14:48:00', null),
        (2, 2, 1, 'task_tester', '2023-06-10 16:37:00', null);
+
+insert into TASK_TAG(TASK_ID, TAG)
+values (1, 'tag_one'),
+       (1, 'tag_two'),
+       (1, 'tag_three'),
+       (2, 'tag_one'),
+       (2, 'tag_two');

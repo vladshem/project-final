@@ -3,10 +3,7 @@ package com.javarush.jira.bugtracking.task;
 import com.javarush.jira.bugtracking.Handlers;
 import com.javarush.jira.bugtracking.UserBelong;
 import com.javarush.jira.bugtracking.UserBelongRepository;
-import com.javarush.jira.bugtracking.task.to.ActivityTo;
-import com.javarush.jira.bugtracking.task.to.TaskTo;
-import com.javarush.jira.bugtracking.task.to.TaskToExt;
-import com.javarush.jira.bugtracking.task.to.TaskToFull;
+import com.javarush.jira.bugtracking.task.to.*;
 import com.javarush.jira.bugtracking.tree.ITreeNode;
 import com.javarush.jira.common.util.Util;
 import com.javarush.jira.login.AuthUser;
@@ -45,6 +42,18 @@ public class TaskController {
     public TaskToFull get(@PathVariable long id) {
         log.info("get task by id={}", id);
         return taskService.get(id);
+    }
+
+    @GetMapping("/{id}/in-progress-hours")
+    public Long getInProgressHours(@PathVariable long id) {
+        log.info("get hours in progress status task by id={}", id);
+        return taskService.getHoursInProgress(id);
+    }
+
+    @GetMapping("/{id}/in-test-hours")
+    public Long getInTestHours(@PathVariable long id) {
+        log.info("get hours in test status task by id={}", id);
+        return taskService.getHoursInTest(id);
     }
 
     @GetMapping("/by-sprint")
@@ -149,6 +158,13 @@ public class TaskController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
         activityService.delete(id);
+    }
+
+    @PostMapping("/{id}/tags")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addTaskTag(@PathVariable long id, @Nullable @RequestParam String tag) {
+        log.info("add tag {} to task(id={})", tag, id);
+        taskService.addTag(id, tag);
     }
 
     private record TaskTreeNode(TaskTo taskTo, List<TaskTreeNode> subNodes) implements ITreeNode<TaskTo, TaskTreeNode> {

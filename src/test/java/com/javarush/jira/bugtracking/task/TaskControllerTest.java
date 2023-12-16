@@ -12,6 +12,11 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
 import static com.javarush.jira.bugtracking.ObjectType.TASK;
 import static com.javarush.jira.bugtracking.task.TaskController.REST_URL;
 import static com.javarush.jira.bugtracking.task.TaskService.CANNOT_ASSIGN;
@@ -19,7 +24,9 @@ import static com.javarush.jira.bugtracking.task.TaskService.CANNOT_UN_ASSIGN;
 import static com.javarush.jira.bugtracking.task.TaskTestData.NOT_FOUND;
 import static com.javarush.jira.bugtracking.task.TaskTestData.*;
 import static com.javarush.jira.common.util.JsonUtil.writeValue;
+import static com.javarush.jira.login.internal.web.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
 import static com.javarush.jira.login.internal.web.UserTestData.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -29,15 +36,19 @@ class TaskControllerTest extends AbstractControllerTest {
     private static final String TASKS_REST_URL_SLASH = REST_URL + "/";
     private static final String TASKS_BY_PROJECT_REST_URL = REST_URL + "/by-project";
     private static final String TASKS_BY_SPRINT_REST_URL = REST_URL + "/by-sprint";
+    private static final String TASKS_IN_PROGRESS_REST_URL = "/in-progress-hours";
+    private static final String TASKS_IN_TEST_REST_URL = "/in-test-hours";
     private static final String ACTIVITIES_REST_URL = REST_URL + "/activities";
     private static final String ACTIVITIES_REST_URL_SLASH = REST_URL + "/activities/";
     private static final String CHANGE_STATUS = "/change-status";
+    private static final String TAGS_REST_URL = "/tags";
 
     private static final String PROJECT_ID = "projectId";
     private static final String SPRINT_ID = "sprintId";
     private static final String STATUS_CODE = "statusCode";
     private static final String USER_TYPE = "userType";
     private static final String ENABLED = "enabled";
+    private static final String TAG = "tag";
 
     @Autowired
     private TaskRepository taskRepository;
@@ -82,6 +93,26 @@ class TaskControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(TASK_TO_MATCHER.contentJson(taskTo2, taskTo1));
+    }
+
+    @Test
+    @WithUserDetails(value = USER_MAIL)
+    void getHoursInProgressTask() throws Exception {
+        perform(MockMvcRequestBuilders.get(TASKS_REST_URL_SLASH + DONE_TASK_ID + TASKS_IN_PROGRESS_REST_URL))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(containsString("3")));
+    }
+
+    @Test
+    @WithUserDetails(value = USER_MAIL)
+    void getHoursInTestTask() throws Exception {
+        perform(MockMvcRequestBuilders.get(TASKS_REST_URL_SLASH + DONE_TASK_ID + TASKS_IN_TEST_REST_URL))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(containsString("1")));
     }
 
     @Test
@@ -237,6 +268,16 @@ class TaskControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(getUpdatedTaskTo())))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithUserDetails(value = USER_MAIL)
+    void createTaskTag() throws Exception {
+        perform(MockMvcRequestBuilders.post(TASKS_REST_URL_SLASH + READY_FOR_TEST_TASK_ID + TAGS_REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param(TAG, TAG_FOUR))
+                .andExpect(status().isNoContent());
+        get(READY_FOR_TEST_TASK_ID, taskToFull3);
     }
 
     @Test

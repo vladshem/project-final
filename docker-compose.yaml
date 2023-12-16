@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  app:
+    image: 'jira:latest'
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5433/jira
+      - SPRING_DATASOURCE_USERNAME=jira
+      - SPRING_DATASOURCE_PASSWORD=JiraRush
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+  db:
+    image: 'postgres:latest'
+    container_name: db
+    environment:
+      - POSTGRES_USER=jira
+      - POSTGRES_PASSWORD=JiraRush
+      - POSTGRES_DB=jira
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - '5433:5432'
+    volumes:
+      - './pgdata:/var/lib/postgresql/data'

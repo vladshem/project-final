@@ -10,8 +10,12 @@ import java.util.Collections;
 import java.util.Set;
 
 public class ProfileTestData {
+
     public static MatcherFactory.Matcher<Profile> PROFILE_MATCHER =
-            MatcherFactory.usingIgnoringFieldsComparator(Profile.class, "user");
+            MatcherFactory.usingIgnoringFieldsComparator(Profile.class, "user", "last_login", "last_failed_login");
+
+    public static MatcherFactory.Matcher<ProfileTo> PROFILE_TO_MATCHER =
+            MatcherFactory.usingIgnoringFieldsComparator(ProfileTo.class, "id", "last_login");
 
     public static ProfileTo USER_PROFILE_TO = new ProfileTo(null,
             Set.of("assigned", "overdue", "deadline"),

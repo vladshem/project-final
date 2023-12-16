@@ -19,8 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.javarush.jira.bugtracking.ObjectType.TASK;
 import static com.javarush.jira.bugtracking.task.TaskUtil.fillExtraFields;
@@ -130,6 +133,63 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundException(String
                         .format("Not found assignment with userType=%s for task {%d} for user {%d}", userType, id, userId)));
         assignment.setEndpoint(LocalDateTime.now());
+    }
+
+    @Transactional
+    public void addTag(long taskId, String tag) {
+        Task task = handler.getRepository().getExisted(taskId);
+        Set<String> tags = task.getTags();
+        tags.add(tag);
+        task.setTags(tags);
+    }
+
+    public Long getHoursInProgress(long taskId) {
+        LocalDateTime readyForReviewDateTime = null;
+        LocalDateTime inProgressDateTime = null;
+        List<Activity> activities = activityHandler.getRepository().findAllByTaskIdOrderByUpdatedDesc(taskId);
+        Optional<Activity> activityReadyForReview = activities.stream()
+                .filter(activity -> activity.getStatusCode().equals("ready_for_review"))
+                .findFirst();
+        if (activityReadyForReview.isPresent()) {
+            readyForReviewDateTime = activityReadyForReview.get().getUpdated();
+        }
+
+        Optional<Activity> activityinProgress = activities.stream()
+                .filter(activity -> activity.getStatusCode().equals("in_progress"))
+                .findFirst();
+        if (activityinProgress.isPresent()) {
+            inProgressDateTime = activityinProgress.get().getUpdated();
+        }
+
+        if ((readyForReviewDateTime != null) && (inProgressDateTime != null)) {
+            return Duration.between(inProgressDateTime, readyForReviewDateTime).toHours();
+        }
+        return 0L;
+    }
+
+    public Long getHoursInTest(long taskId) {
+        LocalDateTime readyForReviewDateTime = null;
+        LocalDateTime doneDateTime = null;
+
+        List<Activity> activities = activityHandler.getRepository().findAllByTaskIdOrderByUpdatedDesc(taskId);
+        Optional<Activity> activityReadyForReview = activities.stream()
+                .filter(activity -> activity.getStatusCode().equals("ready_for_review"))
+                .findFirst();
+        if (activityReadyForReview.isPresent()) {
+            readyForReviewDateTime = activityReadyForReview.get().getUpdated();
+        }
+
+        Optional<Activity> activityDone = activities.stream()
+                .filter(activity -> activity.getStatusCode().equals("done"))
+                .findFirst();
+        if (activityDone.isPresent()) {
+            doneDateTime = activityDone.get().getUpdated();
+        }
+
+        if ((readyForReviewDateTime != null) && (doneDateTime !=null)) {
+            return Duration.between(readyForReviewDateTime, doneDateTime).toHours();
+        }
+        return 0L;
     }
 
     private void checkAssignmentActionPossible(long id, String userType, boolean assign) {

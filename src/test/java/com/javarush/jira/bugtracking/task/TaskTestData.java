@@ -9,6 +9,7 @@ import com.javarush.jira.bugtracking.task.to.TaskToFull;
 import com.javarush.jira.common.to.CodeTo;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.javarush.jira.bugtracking.ObjectType.TASK;
 import static com.javarush.jira.login.internal.web.UserTestData.ADMIN_ID;
@@ -30,6 +31,8 @@ public class TaskTestData {
     public static final long CANCELED_TASK_ID = 7;
     public static final long SPRINT1_ID = 1;
     public static final long PROJECT1_ID = 1;
+    public static final long SPRINT5_ID = 5;
+    public static final long PROJECT2_ID = 2;
     public static final long ACTIVITY1_ID = 1;
     public static final long NOT_FOUND = 100;
     public static final String TODO = "todo";
@@ -41,11 +44,15 @@ public class TaskTestData {
     public static final String CANCELED = "canceled";
     public static final String TASK_DEVELOPER = "task_developer";
     public static final String TASK_REVIEWER = "task_reviewer";
+    public static final Set<String> tagsForTask1 = Set.of("tag_one", "tag_two", "tag_three");
+    public static final Set<String> tagsForTask2 = Set.of("tag_one", "tag_two");
+    public static final String TAG_FOUR = "tag_four";
 
     public static final TaskTo taskTo1 = new TaskTo(TASK1_ID, "epic-" + TASK1_ID, "Data", "epic", "in_progress", null, PROJECT1_ID, SPRINT1_ID);
     public static final TaskTo taskTo2 = new TaskTo(TASK2_ID, "epic-" + TASK2_ID, "Trees", "epic", "in_progress", null, PROJECT1_ID, SPRINT1_ID);
-    public static final TaskToFull taskToFull1 = new TaskToFull(TASK1_ID, "epic-1", "Data", null, "epic", "in_progress", "normal", null, 4, null, new CodeTo(PROJECT1_ID, "PR1"), new CodeTo(SPRINT1_ID, "SP-1.001"), null);
-    public static final TaskToFull taskToFull2 = new TaskToFull(TASK2_ID, "epic-2", "Trees UPD", "task UPD", "epic", "ready_for_review", "high", null, 4, null, new CodeTo(PROJECT1_ID, "PR1"), new CodeTo(SPRINT1_ID, "SP-1.001"), null);
+    public static final TaskToFull taskToFull1 = new TaskToFull(TASK1_ID, "epic-1", "Data", null, "epic", "in_progress", "normal", null, 4, null, new CodeTo(PROJECT1_ID, "PR1"), new CodeTo(SPRINT1_ID, "SP-1.001"), null, null);
+    public static final TaskToFull taskToFull2 = new TaskToFull(TASK2_ID, "epic-2", "Trees UPD", "task UPD", "epic", "ready_for_review", "high", null, 4, null, new CodeTo(PROJECT1_ID, "PR1"), new CodeTo(SPRINT1_ID, "SP-1.001"), null, null);
+    public static final TaskToFull taskToFull3 = new TaskToFull(READY_FOR_TEST_TASK_ID, "task-3", "task-3", null, "task", "ready_for_test", null, null, null, null, new CodeTo(PROJECT2_ID, "PR2"), new CodeTo(SPRINT5_ID, "SP-2.001"), null, null);
     public static final ActivityTo activityTo1ForTask1 = new ActivityTo(ACTIVITY1_ID, TASK1_ID, USER_ID, null, null, "in_progress", "low", "epic", "Data", null, 3, null);
     public static final ActivityTo activityTo2ForTask1 = new ActivityTo(ACTIVITY1_ID + 1, TASK1_ID, ADMIN_ID, null, null, null, "normal", null, "Data", null, null, null);
     public static final ActivityTo activityTo3ForTask1 = new ActivityTo(ACTIVITY1_ID + 2, TASK1_ID, USER_ID, null, null, null, null, null, "Data", null, 4, null);
@@ -61,7 +68,12 @@ public class TaskTestData {
 
     static {
         taskToFull1.setActivityTos(activityTosForTask1);
+        taskToFull1.setTags(tagsForTask1);
         taskToFull2.setActivityTos(activityTosForTask2);
+        taskToFull2.setTags(tagsForTask2);
+        taskToFull3.setActivityTos(List.of());
+        taskToFull3.setTags(Set.of(TAG_FOUR));
+
     }
 
     public static TaskToExt getNewTaskTo() {

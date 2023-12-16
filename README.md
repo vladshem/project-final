@@ -8,7 +8,7 @@
     - [Spring Modulith - Reference documentation](https://docs.spring.io/spring-modulith/docs/current-SNAPSHOT/reference/html/)
 
 ```
-  url: jdbc:postgresql://localhost:5432/jira
+  url: jdbc:postgresql://localhost:5433/jira
   username: jira
   password: JiraRush
 ```
@@ -27,4 +27,4 @@
 - https://habr.com/ru/articles/259055/
 
 Список выполненных задач:
-...
+4,5,6,7,8,9

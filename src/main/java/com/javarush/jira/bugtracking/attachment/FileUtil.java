@@ -10,7 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,9 +29,10 @@ public class FileUtil {
 
         File dir = new File(directoryPath);
         if (dir.exists() || dir.mkdirs()) {
-            File file = new File(directoryPath + fileName);
-            try (OutputStream outStream = new FileOutputStream(file)) {
-                outStream.write(multipartFile.getBytes());
+            try (InputStream in = multipartFile.getInputStream()) {
+                Files.copy(in, Paths.get(directoryPath).resolve(fileName));
+            } catch (FileAlreadyExistsException  ex) {
+                throw new IllegalRequestDataException("File" + multipartFile.getOriginalFilename() + "already exists");
             } catch (IOException ex) {
                 throw new IllegalRequestDataException("Failed to upload file" + multipartFile.getOriginalFilename());
             }
